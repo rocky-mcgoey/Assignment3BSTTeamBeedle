@@ -18,7 +18,7 @@ public class BSTreeNode<E>
 		this.leftChild = null;
 	}
 
-	public BSTreeNode(E elem, BSTreeNode<E> right, BSTreeNode<E> left) {
+	public BSTreeNode(E elem, String location, BSTreeNode<E> right, BSTreeNode<E> left) {
 		this.element = elem;
 		this.rightChild = right;
 		this.leftChild = left;
@@ -47,10 +47,10 @@ public class BSTreeNode<E>
 	public void setLeftChild(BSTreeNode<E> leftChild) {
 		this.leftChild = leftChild;
 	}
-	
-	public int getHeight() {
-		return 0;
-	}
+
+//	public int getHeight() {
+//		return 0;
+//	}
 
 	
 	public boolean hasLeftChild() {
