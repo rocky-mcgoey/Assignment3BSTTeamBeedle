@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 
 import implementations.BSTree;
@@ -17,7 +17,6 @@ import utilities.Iterator;
 public class WordTracker {
 	
 	public static BSTree<String> tree = new BSTree<String>();
-	public static HashMap<String, Integer> wordLocations = new HashMap<String, Integer>();
 	private static String BSTSerialFile = "res/repository.ser";
 
 	private static void loadWordsIntoBSTFromFile(String fileName) {
@@ -91,11 +90,106 @@ public class WordTracker {
 		}
 	}
 	
+	public static ArrayList<WordInfo> optionOutputArrayBuidlerMakerDoer() {
+		ArrayList<WordInfo> output = new ArrayList<WordInfo>();
+		Iterator<String> it = tree.inorderIterator();
+		String last = null;
+		while (it.hasNext()) {
+			String wordData = it.next();
+			String[] wordDataArray = wordData.split(" ");
+			if (wordDataArray[0].equals(last)) {
+				output.get(output.size() - 1).addWordOccurrence(wordDataArray[1], Integer.parseInt(wordDataArray[2])); 
+			}
+			else {
+				WordInfo newWord = new WordInfo(wordDataArray[0].toLowerCase());
+				newWord.addWordOccurrence(wordDataArray[1], Integer.parseInt(wordDataArray[2]));
+				output.add(newWord);
+			}
+			last = wordDataArray[0];
+		}
+		return output;
+	}
+	
+	public static String pfStringBuilder(WordInfo word) {
+		String output = word.getWord() + " appears in the files: ";
+		for (String file: word.getFiles()) output += file + ", ";
+		output = output.substring(0, output.length() - 2);
+		return output;
+	}
+	
+	public static String plStringBuilder(WordInfo word) {
+		String output = word.getWord() + " appears in the files: ";
+		for (String file: word.getFiles()) {
+			output += file + " on lines: ";
+			for (Integer line : word.getLineNumbers(file)) {
+				output += line + ", ";
+			}
+		}
+		output = output.substring(0, output.length() - 2);
+		return output;
+	}
+
+	public static String poStringBuilder(WordInfo word) {
+		String output = word.getWord() + " appears " + word.getTotalFrequency() + " times in the files: ";
+		for (String file: word.getFiles()) {
+			output += file + " on lines: ";
+			for (Integer line : word.getLineNumbers(file)) {
+				output += line + ", ";
+			}
+		}
+		output = output.substring(0, output.length() - 2);
+		return output;
+	}
+
 	public static void main(String[] args) {
 		deserializeBSTFromFile();
 		loadWordsIntoBSTFromFile(args[0]);
-		Iterator<String> it = tree.inorderIterator();
-		while (it.hasNext()) System.out.println(it.next());
+		ArrayList<WordInfo> wordInfo = optionOutputArrayBuidlerMakerDoer();
+		
+		if (args[1].equals("-pf")) {
+			for (WordInfo word : wordInfo) {
+				String output = pfStringBuilder(word);
+				System.out.println(output);
+			}
+		}
+		else if (args[1].equals("-pl")) {
+			for (WordInfo word : wordInfo) {
+				String output = plStringBuilder(word);
+				System.out.println(output);
+			} 
+		}
+		else if (args[1].equals("-po")) {
+			for (WordInfo word : wordInfo) {
+				String output = poStringBuilder(word);
+				System.out.println(output);
+			} 
+		}
+		
+		if (args.length > 2) {
+		        try (FileWriter writer = new FileWriter(args[2].substring(2))) {
+		        	if (args[1].equals("-pf")) {
+		        		for (WordInfo word : wordInfo) {
+		        			String output = pfStringBuilder(word);
+		        			writer.write(output + "\n");
+		        		}
+		        	}
+		        	else if (args[1].equals("-pl")) {
+		        		for (WordInfo word : wordInfo) {
+		        			String output = plStringBuilder(word);
+		        			writer.write(output + "\n");
+		        		} 
+		        	}
+		        	else if (args[1].equals("-po")) {
+		        		for (WordInfo word : wordInfo) {
+		        			String output = poStringBuilder(word);
+		        			writer.write(output + "\n");
+		        		} 
+		        	}
+		        } catch (IOException e) {
+		            System.err.println("Error writing to file: " + e.getMessage());
+		        }
+		}
+		
 		serializeBSTToFile();
 	}
 }
