@@ -238,12 +238,34 @@ public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E>
 		this.size -= 1;
 		return returnNode;
 	}
-
+	
 	@Override
-	public Iterator<E> inorderIterator() {
-		ArrayList<E> list = inorderArrayMaker(root);
-		return new BSTIterator<E>(list, this.size);
-	}
+    public Iterator<E> inorderIterator() {
+       ArrayList<E> list = new ArrayList<E>();
+       ArrayList<BSTreeNode<E>> stack = new ArrayList<BSTreeNode<E>>();
+
+       BSTreeNode<E> current = root;
+
+       while (current != null || !stack.isEmpty()) {
+
+           while (current != null) {
+               stack.add(current);
+               current = current.getLeftChild();
+           }
+
+           current = stack.remove(stack.size() - 1);
+           list.add(current.getElement());
+
+           current = current.getRightChild();
+        }
+        return new BSTIterator<E>(list, list.size());
+    }
+
+//	@Override
+//	public Iterator<E> inorderIterator() {
+//		ArrayList<E> list = inorderArrayMaker(root);
+//		return new BSTIterator<E>(list, this.size);
+//	}
 
 	private ArrayList<E> inorderArrayMaker(BSTreeNode<E> node) {
 		ArrayList<E> list = new ArrayList<E>();
